@@ -1,4 +1,4 @@
 spring:
   data:
     mongodb:
-      uri: mongodb://localhost:27017/test,localhost:27018/test,localhost:27019/test
+      uri: mongodb://localhost:27017,localhost:27018,localhost:27019/test?replicaSet=helsana
