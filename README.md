@@ -25,3 +25,40 @@ CONTAINER ID        IMAGE               COMMAND                  CREATED        
 b3d231c3c1b8        mongo:4.0.6         "docker-entrypoint.s…"   7 minutes ago       Up 7 minutes        0.0.0.0:27017->27017/tcp   mongo-node1
 ```
 
+Connect to one node
+
+```bash
+docker exec -it mongo-node1 bash
+mongo
+```
+
+Initialize the `ReplicatSet`
+
+```bash
+rs.initiate(
+config = {
+      "_id" : "helsana",
+      "members" : [
+          {
+              "_id" : 0,
+              "host" : "mongo-node1:27017"
+          },
+          {
+              "_id" : 1,
+              "host" : "mongo-node2:27017"
+          },
+          {
+              "_id" : 2,
+              "host" : "mongo-node3:27017"
+          }
+      ]
+  }
+)
+```
+
+Check the status
+
+```bash
+helsana:PRIMARY> rs.status()
+```
+
