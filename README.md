@@ -206,6 +206,9 @@ db.createUser(admin)
 
 show users   // you need to in admin database
 show roles
+
+db.dropUser(<username>)
+
 ``` 
 
 #### Turn on authentication
@@ -293,8 +296,28 @@ helsana:PRIMARY> show users
 ```
 
 
+##### Create additional users
 
+```bash
+use test
+user =   {
+           "user": "john",
+           "pwd": "johnpass",
+           "roles": [ { "role": "readWrite", db: "test" } ]
+         }
+         
+db.createUser(user)         
+``` 
 
+##### Test connection
+
+```bash
+mongo mongodb://john:johnpass@localhost:27017/test
+
+db.customer.find()   // should work
+```
+
+Note that with the `john` user you don't have access to `show users` and `show roles`, since we just gave `readWrite` role to the `john` user
 
 
 Resources:
