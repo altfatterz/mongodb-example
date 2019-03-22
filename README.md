@@ -319,6 +319,84 @@ db.customer.find()   // should work
 
 Note that with the `john` user you don't have access to `show users` and `show roles`, since we just gave `readWrite` role to the `john` user
 
+##### Running on GCP
+
+Create a Google VM with checkbox `Deploy a container image to this VM instance` and provide a docker images like `mongo`
+
+
+Useful when for example `ping` not found
+
+```bash
+docker run --rm busybox ping SERVER_NAME -c 2
+```
+
+##### With one host
+
+```bash
+docker run --name mongo-node1 -p 27017:27017 -d mongo:4.0.6 --replSet "helsana"
+docker run --name mongo-node2 -p 27018:27017 -d mongo:4.0.6 --replSet "helsana"
+docker run --name mongo-node3 -p 27019:27017 -d mongo:4.0.6 --replSet "helsana"
+```
+
+
+```bash
+config = {
+      "_id" : "helsana",
+      "members" : [
+          {
+              "_id" : 0,
+              "host" : "mongodb-docker2:27017"
+          },
+          {
+              "_id" : 1,
+              "host" : "mongodb-docker2:27018"
+          },
+          {
+              "_id" : 2,
+              "host" : "mongodb-docker2:27019"
+          }
+      ]
+  }
+rs.initiate(config)
+```
+
+##### With two hosts
+
+Containers on `mongo-docker2`
+
+```bash
+docker run --name mongo-node1 -p 27017:27017 -d mongo:4.0.6 --replSet "helsana"
+docker run --name mongo-node2 -p 27018:27017 -d mongo:4.0.6 --replSet "helsana"
+```
+
+Containers on `mongo-docker3`
+
+```bash
+docker run --name mongo-node3 -p 27017:27017 -d mongo:4.0.6 --replSet "helsana"
+```
+
+```bash
+config = {
+      "_id" : "helsana",
+      "members" : [
+          {
+              "_id" : 0,
+              "host" : "34.65.238.44:27017"
+          },
+          {
+              "_id" : 1,
+              "host" : "34.65.238.44:27018"
+          },
+          {
+              "_id" : 2,
+              "host" : "34.65.110.140:27017"
+          }
+      ]
+  }
+rs.initiate(config)
+```
+
+
 
 Resources:
 
@@ -328,3 +406,4 @@ Resources:
 - http://www.tugberkugurlu.com/archive/setting-up-a-mongodb-replica-set-with-docker-and-connecting-to-it-with-a--net-core-app
 - https://medium.com/mongoaudit/how-to-enable-authentication-on-mongodb-b9e8a924efac
 - https://stackoverflow.com/questions/38524150/mongodb-replica-set-with-simple-password-authentication
+- https://serverfault.com/questions/424465/how-to-reset-mongodb-replica-set-settings
