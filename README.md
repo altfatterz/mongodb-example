@@ -22,9 +22,27 @@ docker network create my-mongo-cluster
 ##### Start up the containers
 
 ```bash
-docker container run -d --name mongo-node1 --net my-mongo-cluster -v $(pwd)/mongodb-cluster/data/node1:/data/db -v $(pwd)/mongodb-cluster/config/node1:/etc/mongo -p 27017:27017 mongo:4.0.6 --config /etc/mongo/mongod.config --smallfiles 
-docker container run -d --name mongo-node2 --net my-mongo-cluster -v $(pwd)/mongodb-cluster/data/node2:/data/db -v $(pwd)/mongodb-cluster/config/node2:/etc/mongo -p 27018:27018 mongo:4.0.6 --config /etc/mongo/mongod.config --smallfiles 
-docker container run -d --name mongo-node3 --net my-mongo-cluster -v $(pwd)/mongodb-cluster/data/node3:/data/db -v $(pwd)/mongodb-cluster/config/node3:/etc/mongo -p 27019:27019 mongo:4.0.6 --config /etc/mongo/mongod.config --smallfiles 
+docker container run -d --name mongo-node1 \
+    -v $(pwd)/mongodb-cluster/data/node1:/data/db \
+    -v $(pwd)/mongodb-cluster/config/node1:/etc/mongo \
+    --net my-mongo-cluster \
+    -p 27017:27017 \
+    mongo:4.0.6 --config /etc/mongo/mongod.config
+     
+docker container run -d --name mongo-node2 \
+    -v $(pwd)/mongodb-cluster/data/node2:/data/db \
+    -v $(pwd)/mongodb-cluster/config/node2:/etc/mongo \
+    --net my-mongo-cluster \
+    -p 27018:27018 \
+    mongo:4.0.6 --config /etc/mongo/mongod.config
+ 
+docker container run -d --name mongo-node3 \
+    -v $(pwd)/mongodb-cluster/data/node3:/data/db \
+    -v $(pwd)/mongodb-cluster/config/node3:/etc/mongo \
+    --net my-mongo-cluster \
+    -p 27019:27019 \
+    mongo:4.0.6 --config /etc/mongo/mongod.config
+
 ```
 
 ##### Verify that they are up and running
