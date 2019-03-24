@@ -1,49 +1,8 @@
-### Host configurations
+### Local setup
 
-#### Create the data directories
-
-```bash
-mkdir ~/mongodb-cluster/data/node1
-mkdir ~/mongodb-cluster/data/node2
-mkdir ~/mongodb-cluster/data/node3
-```
-
-#### Create the config directories
-
-```bash
-mkdir ~/mongodb-cluster/config/node1
-mkdir ~/mongodb-cluster/config/node2
-mkdir ~/mongodb-cluster/config/node3
-```
-
-Add a `mongod.config` into each of the `node1`, `node2` and `node3` configuration folders with the following content
-
-```yaml
-replication:
-  oplogSizeMB: 1024
-  replSetName: helsana
-net:
-  port: 27017
-```
-
-```yaml
-replication:
-  oplogSizeMB: 1024
-  replSetName: helsana
-net:
-  port: 27018
-```
-
-```yaml
-replication:
-  oplogSizeMB: 1024
-  replSetName: helsana
-net:
-  port: 27019
-```
+We create a 3 node mongodb `ReplicaSet` using docker containers. 
 
 #### Add the following the `/etc/hosts`
-
 
 ```bash
 # mongodb cluster configuration
@@ -63,9 +22,9 @@ docker network create my-mongo-cluster
 ##### Start up the containers
 
 ```bash
-docker run --name mongo-node1 -d --net my-mongo-cluster -v ~/mongodb-cluster/data/node1:/data/db -v ~/mongodb-cluster/config/node1:/etc/mongo -p 27017:27017 mongo:4.0.6 --config /etc/mongo/mongod.config 
-docker run --name mongo-node2 -d --net my-mongo-cluster -v ~/mongodb-cluster/data/node2:/data/db -v ~/mongodb-cluster/config/node2:/etc/mongo -p 27018:27018 mongo:4.0.6 --config /etc/mongo/mongod.config 
-docker run --name mongo-node3 -d --net my-mongo-cluster -v ~/mongodb-cluster/data/node3:/data/db -v ~/mongodb-cluster/config/node3:/etc/mongo -p 27019:27019 mongo:4.0.6 --config /etc/mongo/mongod.config 
+docker container run -d --name mongo-node1 --net my-mongo-cluster -v $(pwd)/mongodb-cluster/data/node1:/data/db -v $(pwd)/mongodb-cluster/config/node1:/etc/mongo -p 27017:27017 mongo:4.0.6 --config /etc/mongo/mongod.config --smallfiles 
+docker container run -d --name mongo-node2 --net my-mongo-cluster -v $(pwd)/mongodb-cluster/data/node2:/data/db -v $(pwd)/mongodb-cluster/config/node2:/etc/mongo -p 27018:27018 mongo:4.0.6 --config /etc/mongo/mongod.config --smallfiles 
+docker container run -d --name mongo-node3 --net my-mongo-cluster -v $(pwd)/mongodb-cluster/data/node3:/data/db -v $(pwd)/mongodb-cluster/config/node3:/etc/mongo -p 27019:27019 mongo:4.0.6 --config /etc/mongo/mongod.config --smallfiles 
 ```
 
 ##### Verify that they are up and running
@@ -91,7 +50,7 @@ mongo
 
 ```bash
 config = {
-      "_id" : "helsana",
+      "_id" : "demo",
       "members" : [
           {
               "_id" : 0,
@@ -115,7 +74,7 @@ rs.initiate(config)
 ##### Check the status
 
 ```bash
-helsana:PRIMARY> rs.status()
+demo:PRIMARY> rs.status()
 ```
 
 ##### MongoDB GUI (Robo 3T)
@@ -124,9 +83,9 @@ helsana:PRIMARY> rs.status()
 brew cask install robo-3t
 ```
 
-ReplicatSet connection configuration
+`ReplicatSet` connection configuration
 
-![robo3T](robo3T.png)
+![DemoClusterMongoGUI](DemoClusterMongoGUI.png)
 
 ##### Mongo client connection
 
@@ -135,13 +94,13 @@ brew install mongo
 ``` 
 
 ```bash
-mongo --host helsana/mongo-node1:27017,mongo-node2:27018,mongo-node3:27019 test
+mongo --host demo/mongo-node1:27017,mongo-node2:27018,mongo-node3:27019 test
 ```
 
 this uses the connection url:
 
 ```bash
-mongodb://mongo-node1:27017,mongo-node2:27018,mongo-node3:27019/test?replicaSet=helsana
+mongodb://mongo-node1:27017,mongo-node2:27018,mongo-node3:27019/test?replicaSet=demo
 ``` 
 
 ##### Spring Data MongoDB connection
@@ -150,7 +109,7 @@ mongodb://mongo-node1:27017,mongo-node2:27018,mongo-node3:27019/test?replicaSet=
 spring:
   data:
     mongodb:
-      uri: mongodb://localhost:27017,localhost:27018,localhost:27019/test?replicaSet=helsana
+      uri: mongodb://localhost:27017,localhost:27018,localhost:27019/test?replicaSet=demo
 ```
 
 ##### Useful MongoDB commands
@@ -231,13 +190,7 @@ chmod 600 mongodb.key
 #### Restart the cluster
 
 ```bash
-docker stop mongo-node1
-docker stop mongo-node2
-docker stop mongo-node3
-
-docker start mongo-node1
-docker start mongo-node2
-docker start mongo-node3
+docker container restart mongo-node1 mongo-node2 mongo-node3
 ```
 
 #### Test login
@@ -247,7 +200,7 @@ mongo mongodb://admin:s3cr3t@localhost:27017/admin
 
 show users
 
-helsana:PRIMARY> show users
+demo:PRIMARY> show users
 {
 	"_id" : "admin.admin",
 	"user" : "admin",
@@ -277,7 +230,7 @@ Error: command usersInfo requires authentication
 db.auth("admin","s3cr3t")
 show users 
 
-helsana:PRIMARY> show users
+demo:PRIMARY> show users
 {
 	"_id" : "admin.admin",
 	"user" : "admin",
@@ -319,6 +272,14 @@ db.customer.find()   // should work
 
 Note that with the `john` user you don't have access to `show users` and `show roles`, since we just gave `readWrite` role to the `john` user
 
+
+##### Cleanup locally
+
+```bash
+docker container stop mongo-node1 mongo-node2 mongo-node3
+docker container rm mongo-node1 mongo-node2 mongo-node3
+```
+
 ##### Running on GCP
 
 Create a Google VM with checkbox `Deploy a container image to this VM instance` and provide a docker images like `mongo`
@@ -333,15 +294,15 @@ docker run --rm busybox ping SERVER_NAME -c 2
 ##### With one host
 
 ```bash
-docker run --name mongo-node1 -p 27017:27017 -d mongo:4.0.6 --replSet "helsana"
-docker run --name mongo-node2 -p 27018:27017 -d mongo:4.0.6 --replSet "helsana"
-docker run --name mongo-node3 -p 27019:27017 -d mongo:4.0.6 --replSet "helsana"
+docker run --name mongo-node1 -p 27017:27017 -d mongo:4.0.6 --replSet "demo"
+docker run --name mongo-node2 -p 27018:27017 -d mongo:4.0.6 --replSet "demo"
+docker run --name mongo-node3 -p 27019:27017 -d mongo:4.0.6 --replSet "demo"
 ```
 
 
 ```bash
 config = {
-      "_id" : "helsana",
+      "_id" : "demo",
       "members" : [
           {
               "_id" : 0,
@@ -365,19 +326,19 @@ rs.initiate(config)
 Containers on `mongo-docker2`
 
 ```bash
-docker run --name mongo-node1 -p 27017:27017 -d mongo:4.0.6 --replSet "helsana"
-docker run --name mongo-node2 -p 27018:27017 -d mongo:4.0.6 --replSet "helsana"
+docker run --name mongo-node1 -p 27017:27017 -d mongo:4.0.6 --replSet "demo"
+docker run --name mongo-node2 -p 27018:27017 -d mongo:4.0.6 --replSet "demo"
 ```
 
 Containers on `mongo-docker3`
 
 ```bash
-docker run --name mongo-node3 -p 27017:27017 -d mongo:4.0.6 --replSet "helsana"
+docker run --name mongo-node3 -p 27017:27017 -d mongo:4.0.6 --replSet "demo"
 ```
 
 ```bash
 config = {
-      "_id" : "helsana",
+      "_id" : "demo",
       "members" : [
           {
               "_id" : 0,
@@ -395,6 +356,8 @@ config = {
   }
 rs.initiate(config)
 ```
+
+
 
 
 
