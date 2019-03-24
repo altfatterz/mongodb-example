@@ -376,7 +376,10 @@ rs.initiate(config)
 ```
 
 
-
+Remove volumes
+```bash
+docker volume ls | grep '^local' | awk '{ print "docker volume rm " $2}' | bash
+```
 
 
 Resources:
