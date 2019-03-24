@@ -183,7 +183,7 @@ use admin
 admin = {
     user: "admin",
     pwd: "s3cr3t",
-    roles: [ { role: "userAdminAnyDatabase", db:"admin" } ]
+    roles: [ { role: "root", db:"admin" } ]
 }
 
 db.createUser(admin)
@@ -208,7 +208,7 @@ security:
 The `keyFile` is needed for authentication between servers in the `ReplicaSet`, not for logging in. It can be created:
 
 ```bash
-openssl rand -base64 741 > mongodb.key
+openssl rand -base64 1024 > mongodb.key
 chmod 600 mongodb.key
 ```
 
