@@ -411,11 +411,9 @@ docker container run -d --name mongo-node \
 mongodump -d test -o mongodb-backup
 2019-03-27T13:06:59.943+0100	writing test.customer to
 2019-03-27T13:06:59.953+0100	done dumping test.customer (954 documents)
-
-
-With `mongodump` is recomended to connect to the secondary in a replica set 
-
 ```
+
+With `mongodump` is recommended to connect to the secondary in a replica set.
 
 5.  Check the database count. Notice that after we took the database dump the application inserted more documents.
 
