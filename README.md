@@ -110,7 +110,7 @@ brew cask install robo-3t
 
 `ReplicatSet` connection configuration
 
-![DemoClusterMongoGUI](DemoClusterMongoGUI.png)
+![DemoClusterMongoGUI](../altfatterz.github.io/images/2019-03-26/DemoClusterMongoGUI.png)
 
 ##### Mongo client connection
 
@@ -398,3 +398,6 @@ Resources:
 - https://medium.com/mongoaudit/how-to-enable-authentication-on-mongodb-b9e8a924efac
 - https://stackoverflow.com/questions/38524150/mongodb-replica-set-with-simple-password-authentication
 - https://serverfault.com/questions/424465/how-to-reset-mongodb-replica-set-settings
+
+- https://stackoverflow.com/questions/14825557/does-mongodump-lock-the-database
+- https://docs.mongodb.com/manual/core/backups/#backup-with-mongodump
