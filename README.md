@@ -389,6 +389,53 @@ docker volume ls | grep '^local' | awk '{ print "docker volume rm " $2}' | bash
 ```
 
 
+
+##### Using single MongoDB instance backup and restore
+
+
+1. Start the mongo instance
+
+```bash
+docker container run -d --name mongo-node \
+    -v $(pwd)/mongodb/data/db:/data/db \
+    -p 27017:27017 \
+    mongo:4.0.6
+```
+
+2. Start the spring instance
+
+3. Verify that documents are inserted every 200 milliseconds
+
+4. Backup the `test` database in the `mongodb-backup` folder
+```bash
+mongodump -d test -o mongodb-backup
+2019-03-27T13:06:59.943+0100	writing test.customer to
+2019-03-27T13:06:59.953+0100	done dumping test.customer (954 documents)
+
+
+With `mongodump` is recomended to connect to the secondary in a replica set 
+
+```
+
+5.  Check the database count
+
+```bash
+db.customer.count()
+1014
+```
+
+6. Restore the database
+
+`restored-test` is the name of the new database and `mongodb-backup/test` is the directory where we dumped the database `test` 
+
+```bash
+mongorestore -d restored-test mongodb-backup/test
+```
+
+
+
+
+
 Resources:
 
 - https://hub.docker.com/_/mongo

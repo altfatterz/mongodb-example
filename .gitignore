@@ -29,3 +29,6 @@ HELP.md
 .vscode/
 
 mongodb-cluster/data
+mongodb/data
+mongodb-backup
+
