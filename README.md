@@ -432,10 +432,13 @@ db.customer.count()
 mongorestore -d restored-test mongodb-backup/test
 ```
 
-7. Check the database count in the 
+7. Check the database count in the
+ 
 ```bash
 mongo 
-
+use restored-test
+db.customer.count()
+954
 ```
 
 
