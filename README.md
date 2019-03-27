@@ -402,9 +402,9 @@ docker container run -d --name mongo-node \
     mongo:4.0.6
 ```
 
-2. Start the spring instance
+2. Start the `mongodb-example` Spring Boot application
 
-3. Verify that documents are inserted every 200 milliseconds
+3. Verify that documents are inserted every 200 milliseconds, see the `@Scheduled` annotation
 
 4. Backup the `test` database in the `mongodb-backup` folder
 ```bash
@@ -417,7 +417,7 @@ With `mongodump` is recomended to connect to the secondary in a replica set
 
 ```
 
-5.  Check the database count
+5.  Check the database count. Notice that after we took the database dump the application inserted more documents.
 
 ```bash
 db.customer.count()
@@ -432,6 +432,11 @@ db.customer.count()
 mongorestore -d restored-test mongodb-backup/test
 ```
 
+7. Check the database count in the 
+```bash
+mongo 
+
+```
 
 
 
