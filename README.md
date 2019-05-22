@@ -39,7 +39,7 @@ docker container run -d --name mongo-node2 \
     -v $(pwd)/mongodb-cluster/data/configdb/node2:/data/configdb \
     -v $(pwd)/mongodb-cluster/config/node2:/etc/mongo \
     --net my-mongo-cluster \
-    -p 27018:27018 \
+    -p 27018:27017 \
     mongo:4.0.6 --config /etc/mongo/mongod.config
  
 docker container run -d --name mongo-node3 \
@@ -47,7 +47,7 @@ docker container run -d --name mongo-node3 \
     -v $(pwd)/mongodb-cluster/data/configdb/node3:/data/configdb \
     -v $(pwd)/mongodb-cluster/config/node3:/etc/mongo \
     --net my-mongo-cluster \
-    -p 27019:27019 \
+    -p 27019:27017 \
     mongo:4.0.6 --config /etc/mongo/mongod.config
     
     ```
@@ -83,11 +83,11 @@ config = {
           },
           {
               "_id" : 1,
-              "host" : "mongo-node2:27018"
+              "host" : "mongo-node2:27017"
           },
           {
               "_id" : 2,
-              "host" : "mongo-node3:27019"
+              "host" : "mongo-node3:27017"
           }
       ]
   }
@@ -114,15 +114,6 @@ brew cask install robo-3t
 
 ##### Mongo client connection
 
-```bash
-brew install mongo
-``` 
-
-```bash
-mongo --host demo/mongo-node1:27017,mongo-node2:27018,mongo-node3:27019 test
-```
-
-this uses the connection url:
 
 ```bash
 mongodb://mongo-node1:27017,mongo-node2:27018,mongo-node3:27019/test?replicaSet=demo
@@ -143,6 +134,22 @@ spring:
 show dbs
 show collections
 ```
+
+
+https://stackoverflow.com/questions/8990158/mongodb-replicates-and-error-err-not-master-and-slaveok-false-code
+
+Connect to the secondary nodes and issue this command. This will make sure you can query from the secondary nodes.
+
+You have to set "slave okay" mode to let the mongo shell know that you're allowing reads from a secondary. 
+This is to protect you and your applications from performing eventually consistent reads by accident.
+
+You only need to set `slaveOk` when querying from secondaries, and only once per session.
+
+```bash
+rs.slaveOk()
+```
+
+
 
 #### Useful docker commands
 
