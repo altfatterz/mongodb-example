@@ -449,6 +449,88 @@ db.customer.count()
 
 
 
+### Quick setup
+
+```bash
+docker container run -d -p 27017:27017 -v /Users/zoal/temp/mongodb-service-data:/data/db mongo:4.0.9
+```
+
+Create super user:
+
+```bash
+use admin
+```
+
+```bash
+db.createUser({
+    user: 'admin',
+    pwd: 'admin1_',
+    roles: [
+                  { role: 'userAdminAnyDatabase', db: 'admin' },
+                  { role: 'readWriteAnyDatabase', db: 'admin' },
+                  { role: 'dbAdminAnyDatabase', db: 'admin' },
+                  { role: 'clusterAdmin', db: 'admin' }
+               ]
+})
+```
+
+Create additional users:
+
+```bash
+use partner-service-db
+```
+
+```bash
+db.createUser({
+    user: 'user',
+    pwd: 'Welcome1_',
+    roles: [{ role: 'readWrite', db:'partner-service-db'}]
+})
+```
+
+Stop the previous container and start another container with security turned on:
+
+```bash
+docker stop <container-id>
+docker container run -d -p 27017:27017 -v /Users/zoal/temp/mongodb-service-data:/data/db --name mongodb-service mongo:4.0.9 mongod --auth
+```
+
+Test that you cannot authenticate anymore without providing `username` and `password`
+
+```bash
+zoal@zoltans-macbook-pro:~|⇒  mongo
+MongoDB shell version v4.0.3
+connecting to: mongodb://127.0.0.1:27017
+2019-05-23T13:18:47.685+0200 E QUERY    [js] Error: network error while attempting to run command 'isMaster' on host '127.0.0.1:27017'  :
+connect@src/mongo/shell/mongo.js:257:13
+@(connect):1:6
+exception: connect failed
+```
+
+Test with `user`
+
+```bash
+mongo partner-service-db -u user -p Welcome1_
+```
+
+Test with `admin`
+
+mongo admin -u admin -p admin1_
+
+The configuration for the Spring Boot clients:
+
+
+```yaml
+spring:
+  data:
+    mongodb:
+      host: localhost
+      database: partner-service-db
+      username: user
+      password: Welcome1_
+```
+
+
 Resources:
 
 - https://hub.docker.com/_/mongo
